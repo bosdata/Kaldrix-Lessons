@@ -1,0 +1,4 @@
+Item('kaldrix-learner-name',e.target.value));
+tabs();render();renderAI();
+</script>
+</body></html>
