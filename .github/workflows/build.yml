@@ -42,11 +42,11 @@ jobs:
           for name in ['Kaldrix_Data_Analysis_Mastery_Learner.html','Kaldrix_Data_Analysis_Mastery_Trainer.html']:
               s=Path(name).read_text(encoding='utf-8')
               js='\n'.join(re.findall(r'<script>(.*?)</script>',s,re.S))
-              Path(name+'.jscheck').write_text(js,encoding='utf-8')
+              Path(name+'.js').write_text(js,encoding='utf-8')
           PY
-          node --check Kaldrix_Data_Analysis_Mastery_Learner.html.jscheck
-          node --check Kaldrix_Data_Analysis_Mastery_Trainer.html.jscheck
-          rm *.jscheck
+          node --check Kaldrix_Data_Analysis_Mastery_Learner.html.js
+          node --check Kaldrix_Data_Analysis_Mastery_Trainer.html.js
+          rm *.html.js
 
       - name: Commit generated programme
         run: |
