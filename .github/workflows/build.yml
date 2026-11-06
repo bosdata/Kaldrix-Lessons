@@ -4,10 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
+      - 'source_parts/**'
+      - 'tools/**'
       - 'assets/**'
-      - 'curriculum.json'
-      - 'build_project.py'
       - 'requirements.txt'
       - '.github/workflows/build.yml'
   workflow_dispatch:
@@ -17,17 +16,24 @@ permissions:
 
 jobs:
   build:
-    if: ${{ !startsWith(github.event.head_commit.message || '', 'chore(build):') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || !startsWith(github.event.head_commit.message, 'chore(build):') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Assemble source files
+        run: python tools/assemble_sources.py
+
       - name: Install build dependencies
         run: pip install -r requirements.txt
+
       - name: Build programme
         run: python build_project.py
+
       - name: Validate generated learner/trainer JavaScript
         run: |
           python - <<'PY'
@@ -41,6 +47,7 @@ jobs:
           node --check Kaldrix_Data_Analysis_Mastery_Learner.html.jscheck
           node --check Kaldrix_Data_Analysis_Mastery_Trainer.html.jscheck
           rm *.jscheck
+
       - name: Commit generated programme
         run: |
           git config user.name 'github-actions[bot]'
@@ -48,7 +55,8 @@ jobs:
           git add Kaldrix_Data_Analysis_Mastery_Learner.html Kaldrix_Data_Analysis_Mastery_Trainer.html \
             Data_Analysis_Mastery_Roadmap.pdf Trainer_Assessor_Guide.pdf \
             HOW_TO_USE_KALDRIX_PROGRAMME.txt Kaldrix_Data_Analysis_Mastery_Programme.zip \
-            lessons day_datasets
+            lessons day_datasets \
+            src/Kaldrix_Data_Analysis_Mastery.template.html build_project.py curriculum.json
           if git diff --cached --quiet; then
             echo 'No generated changes.'
           else
