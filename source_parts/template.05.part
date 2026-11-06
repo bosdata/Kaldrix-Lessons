@@ -1,0 +1,78 @@
+ unless necessary for the explanation.'},
+{name:'Challenge my finding',desc:'Stress-test an interpretation before the learner accepts it.',instruction:'Challenge the learner\'s finding. Give three plausible alternative explanations, confounders, data-quality concerns or interpretation risks, and state what evidence would distinguish them.'},
+{name:'Mock trainer',desc:'Question the learner like a real assessor and score the explanation.',instruction:'Act as a fair but demanding Kaldrix trainer. Ask one question at a time about accuracy, assumptions, QA, interpretation and limitations. After each learner response, give concise feedback before the next question.'},
+{name:'Extra practice',desc:'Create a fresh synthetic problem at the learner\'s current level.',instruction:'Create a small synthetic practice problem for this lesson. Give only the scenario, small data sample and objectives first. Keep the worked answer hidden until the learner submits an attempt.'},
+{name:'Review dashboard',desc:'Critique decision usefulness, clarity, QA and visual choices.',instruction:'Review the learner\'s dashboard or proposed visual design for decision usefulness, misleading choices, missing QA/freshness information, accessibility and unnecessary clutter. Do not invent data.'},
+{name:'Verify an AI claim',desc:'Turn an AI suggestion into a verification checklist before trusting it.',instruction:'Treat the learner\'s quoted AI suggestion as unverified. List the source evidence, calculations, documentation or tests that must be checked before it is trusted, then explain what would count as a failed verification.'}
+];
+function renderAI(){
+ const lesson=document.getElementById('aiLesson'),mode=document.getElementById('aiMode'),grid=document.getElementById('aiGrid');
+ if(!lesson||!mode||!grid)return;
+ const previousDay=lesson.value;
+ lesson.innerHTML=COURSE.map(d=>`<option value="${d.day}">Day ${String(d.day).padStart(2,'0')} · ${esc(d.level)} · ${esc(d.title)}</option>`).join('');
+ if(previousDay&&COURSE.some(d=>String(d.day)===String(previousDay)))lesson.value=previousDay;else{const first=COURSE.find(d=>d.level===current)||COURSE[0];lesson.value=String(first.day)}
+ mode.innerHTML=AI_MODES.map((m,i)=>`<option value="${i}">${esc(m.name)}</option>`).join('');
+ grid.innerHTML=AI_MODES.map((m,i)=>`<div class="aiCard" id="aiCard_${i}"><strong>${esc(m.name)}</strong><p>${esc(m.desc)}</p><button class="btn" onclick="chooseAIMode(${i})">Use this mode</button></div>`).join('');
+ highlightAIMode();
+ mode.onchange=()=>{highlightAIMode();buildAIPrompt(false)};
+ lesson.onchange=()=>buildAIPrompt(false);
+}
+function chooseAIMode(i){const mode=document.getElementById('aiMode');if(!mode)return;mode.value=String(i);highlightAIMode();buildAIPrompt(false);document.getElementById('aiInput')?.focus()}
+function highlightAIMode(){const mode=document.getElementById('aiMode');if(!mode)return;document.querySelectorAll('.aiCard').forEach((c,i)=>c.classList.toggle('active',String(i)===mode.value))}
+function aiLesson(){const day=parseInt(document.getElementById('aiLesson')?.value||'0',10);return COURSE.find(d=>d.day===day)||COURSE[0]}
+function buildAIPrompt(showStatus){
+ const d=aiLesson(),mode=AI_MODES[parseInt(document.getElementById('aiMode')?.value||'0',10)]||AI_MODES[0],input=(document.getElementById('aiInput')?.value||'').trim();
+ const learner=(document.getElementById('learnerName')?.value||'the learner').trim()||'the learner';
+ const objectives=(d.objectives||[]).map((x,i)=>`${i+1}. ${x}`).join('\n');
+ const attempt=input||'[The learner has not entered an attempt yet. Start by asking what they have tried before giving substantive help.]';
+ const prompt=`You are the AI learning coach for the Kaldrix Limited Data Analysis Mastery Programme.
+
+LEARNER
+Name: ${learner}
+Level: ${d.level}
+Day: ${d.day}
+Lesson: ${d.title}
+Primary tool: ${d.tool}
+
+LESSON CONTEXT
+Concept: ${d.concepts}
+Learning objectives:
+${objectives}
+Practical task: ${d.practical}
+Independent exercise: ${d.exercise}
+
+COACHING MODE
+${mode.name}: ${mode.instruction}
+
+LEARNER'S QUESTION / ATTEMPT
+${attempt}
+
+KALDRIX COACHING RULES
+- Help the learner understand and perform the work; do not encourage answer-copying.
+- Never claim a result is correct without explaining how it can be verified.
+- For formulas, SQL, DAX or Python, explain the relevant logic and include a small test when useful.
+- For findings, distinguish evidence from assumptions and hypotheses.
+- Do not invent values that are supposed to come from the learner's dataset.
+- If information is missing, ask a focused question rather than guessing.
+- Keep the explanation appropriate to the learner's current level.
+- End with a short 'Verify it yourself' step.
+
+Begin coaching now.`;
+ const preview=document.getElementById('aiPromptPreview');if(preview)preview.value=prompt;if(showStatus)setAIStatus('Prompt prepared. You can copy it or open ChatGPT.');return prompt
+}
+function setAIStatus(msg,error=false){const el=document.getElementById('aiStatus');if(!el)return;el.textContent=msg;el.classList.toggle('error',!!error);if(msg)setTimeout(()=>{if(el.textContent===msg)el.textContent=''},6000)}
+async function copyTextReliable(text){
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true}}catch(e){}
+ try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='0';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');ta.remove();if(ok)return true}catch(e){}
+ return false
+}
+async function copyBuiltPrompt(){const p=buildAIPrompt(false),ok=await copyTextReliable(p);setAIStatus(ok?'Prompt copied.':'Clipboard access was blocked. Select the prepared prompt and copy it manually.',!ok);return ok}
+async function copyAndOpenChatGPT(){
+ const p=buildAIPrompt(false),ok=await copyTextReliable(p);
+ const w=window.open('https://chatgpt.com/','_blank','noopener,noreferrer');
+ if(ok)setAIStatus('Prompt copied and ChatGPT opened. Paste the prompt into the new chat.');else setAIStatus('ChatGPT opened, but the browser blocked automatic copying. Copy the prepared prompt manually, then paste it into ChatGPT.',true);
+ if(!w)setAIStatus('Your browser blocked the new tab. Allow pop-ups for this file, then try again.',true)
+}
+function clearAICoach(){const i=document.getElementById('aiInput'),p=document.getElementById('aiPromptPreview');if(i)i.value='';if(p)p.value='';setAIStatus('AI coach cleared.')}
+function openAICoachForDay(day){const lesson=document.getElementById('aiLesson');if(lesson)lesson.value=String(day);buildAIPrompt(false);document.getElementById('aiLab')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('aiInput')?.focus(),350)}
+document.getElementById('learnerName').value=localStorage.getItem('kaldrix-learner-name')||'';document.getElementById('learnerName').addEventListener('input',e=>localStorage.set
