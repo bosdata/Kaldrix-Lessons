@@ -1,0 +1,39 @@
+true;s[sk(day,'approvedDate')]=today();s[sk(day,'feedback')]=fb||'Approved by trainer.'}else{delete s[sk(day,'approved')];delete s[sk(day,'approvedDate')];delete s[sk(day,'done')];s[sk(day,'feedback')]=fb||'Returned for correction.'}save(s);render()}
+function markDone(day,checked){let s=st();if(!s[sk(day,'approved')]){alert('This lesson can only be marked Done after trainer approval.');render();return;}if(checked)s[sk(day,'done')]=true;else delete s[sk(day,'done')];save(s);render()}
+function levelCompletion(level,s){let ds=COURSE.filter(d=>d.level===level);if(!ds.every(d=>s[sk(d.day,'approved')]&&s[sk(d.day,'done')]))return null;let dates=ds.map(d=>s[sk(d.day,'approvedDate')]).filter(Boolean).sort();return dates[dates.length-1]||today()}
+function trainerLogin(){if(!TRAINER_APP)return alert('Trainer approval is available only in the Kaldrix Trainer Review App.');if(trainer)return;let s=st();if(!s.trainerPin){let p=prompt('Set a Trainer Mode PIN for this browser (minimum 4 characters).');if(!p||p.length<4)return alert('PIN not set.');s.trainerPin=p;save(s);trainer=true}else{let p=prompt('Enter Trainer Mode PIN');if(p!==s.trainerPin)return alert('Incorrect PIN.');trainer=true}document.body.classList.add('trainer');render()}
+function trainerLogout(){trainer=false;document.body.classList.remove('trainer');render()}
+function openGoogleSheets(){window.open('https://sheets.new','_blank')}
+function openLesson(day){let d=COURSE.find(x=>x.day===day);document.getElementById('modalBody').innerHTML=`<h2 style="font-family:Georgia,serif;font-weight:500">${esc(d.title)}</h2><p><b>${d.level} · Day ${d.day} · ${esc(d.tool)}</b></p><h3>What you are learning</h3><p>${esc(d.concepts)}</p><h3>Objectives</h3><ul>${d.objectives.map(o=>'<li>'+esc(o)+'</li>').join('')}</ul><h3>Practical</h3><p>${esc(d.practical)}</p><h3>AI coaching</h3><p>${esc(d.ai_use)}</p><h3>Independent exercise</h3><p>${esc(d.exercise)}</p><div class="actions printHide"><button class="btn primary" onclick="downloadData(PDFS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}.pdf')">Download PDF lesson</button><button class="btn" onclick="closeModal();openAICoachForDay(${d.day})">Open AI Coach</button><button class="btn" onclick="downloadData(DATASETS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}_Exercise_Dataset.xlsx')">Download exercise dataset</button><button class="btn" onclick="openGoogleSheets()">Open a new Google Sheet</button></div>`;document.getElementById('modal').classList.add('show')}
+function certificate(level){let s=st(),date=levelCompletion(level,s),name=(document.getElementById('learnerName').value||'').trim();if(!name)return alert('Enter the learner\'s official name first.');if(!date)return alert('Certificate is locked until all lessons in this level are trainer-approved.');document.getElementById('modalBody').innerHTML=`<div class="cert"><img src="__LOGO_DATA__"><div class="subtitle">CERTIFICATE OF COMPLETION</div><h1>Data Analysis Mastery</h1><p>This certificate is proudly presented to</p><div class="name">${esc(name)}</div><p>for successfully completing the Kaldrix Limited</p><div class="level">${level} Level</div><p>and demonstrating the required practical competencies through trainer-reviewed analytical exercises, quality checks and applied project work.</p><div class="certfoot"><div class="sign"><b>Brian Sifuna Obware</b><br>CEO & Founder<br>Kaldrix Limited</div><div class="sign"><b>${fmtDate(date)}</b><br>Date of Completion</div></div><div class="certnote">Issued by Kaldrix Limited · Data Analysis Mastery Programme</div><div class="printHide" style="margin-top:20px"><button class="btn primary" onclick="window.print()">Print / Save as PDF</button></div></div>`;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function blob(data){let a=data.split(','),mime=a[0].match(/:(.*?);/)[1],bin=atob(a[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime})}
+function downloadData(data,name){try{let u=URL.createObjectURL(blob(data)),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}catch(e){alert('Download failed: '+e.message)}}
+
+function exportRecord(){
+ let s=st(),name=(document.getElementById('learnerName').value||'Learner').trim();
+ let record={version:'kaldrix-dam-3',learner:name,exportedAt:new Date().toISOString(),state:s};
+ let u=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'})),a=document.createElement('a');
+ a.href=u;a.download=name.replace(/\W+/g,'_')+'_Kaldrix_Course_Record.json';a.click();URL.revokeObjectURL(u);
+}
+function importRecord(input){
+ let f=input.files&&input.files[0]; if(!f)return;
+ let r=new FileReader();
+ r.onload=()=>{try{
+   let rec=JSON.parse(r.result);
+   if(rec.version!=='kaldrix-dam-3'||!rec.state)throw new Error('This is not a valid Kaldrix course record.');
+   if(!confirm('Import the course record for '+(rec.learner||'this learner')+'? This will replace the current local record.'))return;
+   save(rec.state);
+   if(rec.learner){document.getElementById('learnerName').value=rec.learner;localStorage.setItem('kaldrix-learner-name',rec.learner);}
+   render();
+   alert('Course record imported successfully.');
+ }catch(e){alert('Import failed: '+e.message)}};
+ r.readAsText(f); input.value='';
+}
+
+function exportProgress(){let s=st(),nm=document.getElementById('learnerName').value||'Learner',rows=COURSE.map(d=>[nm,d.day,d.level,d.title,s[sk(d.day,'sheet')]||'',!!s[sk(d.day,'approved')],s[sk(d.day,'approvedDate')]||'',s[sk(d.day,'feedback')]||'']);let csv='Learner,Day,Level,Title,GoogleSheet,Approved,ApprovalDate,TrainerFeedback\n'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');let u=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),a=document.createElement('a');a.href=u;a.download=nm.replace(/\W+/g,'_')+'_Kaldrix_Data_Analysis_Progress.csv';a.click();URL.revokeObjectURL(u)}
+
+const AI_MODES=[
+{name:'Tutor, not solver',desc:'Explain the concept with a fresh example and check understanding without completing the learner\'s assignment.',instruction:'Teach the concept step by step using a small new example. Do not solve the learner\'s full assignment. Ask two short checking questions after the explanation.'},
+{name:'One hint at a time',desc:'Give only the next useful hint so the learner keeps doing the work.',instruction:'Give exactly one useful hint at a time. Do not provide the final answer, formula, query, DAX measure or code unless the learner has made another attempt and explicitly asks for more.'},
+{name:'Debug my logic',desc:'Inspect a formula, SQL query, DAX measure, Python snippet or analytical rule.',instruction:'Diagnose the likely logical error. Explain why it is a problem and propose one small test case. Do not rewrite the entire solution
