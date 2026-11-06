@@ -1,0 +1,83 @@
+progressively stronger tools.",styles["KB"])]
+    for week in range(1,11):
+        days=[d for d in COURSE if d["week"]==week]
+        flow.append(Paragraph(f"Week {week} - {days[0]['level']}",styles["KH"]))
+        rows=[["Day","Lesson","Tool","Exercise"]]+[[str(d["day"]),d["title"],d["tool"],d["exercise"]] for d in days]
+        t=Table(rows,colWidths=[12*mm,65*mm,40*mm,72*mm],repeatRows=1)
+        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#2F75B5")),("TEXTCOLOR",(0,0),(-1,0),colors.white),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),("GRID",(0,0),(-1,-1),0.35,colors.HexColor("#CBD5E1")),("VALIGN",(0,0),(-1,-1),"TOP"),("FONTSIZE",(0,0),(-1,-1),7.2),("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#F8FAFC")])]))
+        flow.append(t)
+        if week<10: flow.append(PageBreak())
+    doc=SimpleDocTemplate(str(path),pagesize=A4,rightMargin=12*mm,leftMargin=12*mm,topMargin=12*mm,bottomMargin=14*mm)
+    doc.build(flow,onFirstPage=footer,onLaterPages=footer)
+    return path
+
+
+def build_trainer_guide() -> Path:
+    path=ROOT/"Trainer_Assessor_Guide.pdf"
+    flow=[Paragraph("TRAINER & ASSESSOR GUIDE",styles["KTitle"]),Paragraph("Kaldrix Data Analysis Mastery Programme",styles["KSub"]),Paragraph("Progress requires correct output, explanation, validation and independent reproduction. A submission alone is not mastery.",styles["KB"]),Paragraph("Recommended marking",styles["KH"])]
+    rows=[["Area","Weight","Evidence"],["Accuracy","35%","Correct calculations/queries/measures/code and reconciled totals."],["Understanding","30%","Explains method, grain, keys, assumptions and limitations."],["QA","20%","Uses control totals, exceptions, tests and source-to-output tracing."],["Communication","15%","Clear findings, charts, documentation and decision relevance."]]
+    t=Table(rows,colWidths=[35*mm,25*mm,118*mm]); t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#17365D")),("TEXTCOLOR",(0,0),(-1,0),colors.white),("GRID",(0,0),(-1,-1),0.35,colors.HexColor("#CBD5E1")),("VALIGN",(0,0),(-1,-1),"TOP"),("FONTSIZE",(0,0),(-1,-1),8)])); flow.append(t)
+    flow += [Paragraph("AI-use rule",styles["KH"]),Paragraph("AI is encouraged for learning, debugging, critique, alternative approaches, test generation and mock defense. It is not accepted as an unexplained answer generator.",styles["KB"])]
+    for level in ["Beginner","Intermediate","Advanced","Pro","Expert"]:
+        flow += [PageBreak(),Paragraph(f"{level} mastery gate",styles["KH"])]
+        for d in [x for x in COURSE if x["level"]==level]:
+            flow.append(Paragraph(f"<b>Day {d['day']} - {d['title']}:</b> Ask the learner to trace one result to the source, explain the logic, show a QA check, and state a limitation.",styles["KB"]))
+    doc=SimpleDocTemplate(str(path),pagesize=A4,rightMargin=16*mm,leftMargin=16*mm,topMargin=14*mm,bottomMargin=14*mm)
+    doc.build(flow,onFirstPage=footer,onLaterPages=footer)
+    return path
+
+
+def as_data_url(path: Path, mime: str) -> str:
+    return f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode("ascii")
+
+
+def build_html(lesson_paths: dict[str,Path], dataset_paths: dict[str,Path], roadmap: Path):
+    pdfs={k:as_data_url(v,"application/pdf") for k,v in lesson_paths.items()}
+    data={k:as_data_url(v,"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") for k,v in dataset_paths.items()}
+    master=as_data_url(roadmap,"application/pdf")
+    common=(TEMPLATE.replace("__COURSE__",json.dumps(COURSE,ensure_ascii=False,separators=(",",":")))
+                    .replace("__PDFS__",json.dumps(pdfs,separators=(",",":")))
+                    .replace("__DATASETS__",json.dumps(data,separators=(",",":")))
+                    .replace("__MASTER__",json.dumps(master))
+                    .replace("__LOGO_DATA__",LOGO_DATA))
+    learner=common.replace("__TRAINER_APP__","false")
+    trainer=common.replace("__TRAINER_APP__","true")
+    (ROOT/"Kaldrix_Data_Analysis_Mastery_Learner.html").write_text(learner,encoding="utf-8")
+    (ROOT/"Kaldrix_Data_Analysis_Mastery_Trainer.html").write_text(trainer,encoding="utf-8")
+
+
+def write_instructions():
+    (ROOT/"HOW_TO_USE_KALDRIX_PROGRAMME.txt").write_text("""KALDRIX DATA ANALYSIS MASTERY PROGRAMME\n\nLEARNER\n1. Open Kaldrix_Data_Analysis_Mastery_Learner.html.\n2. Enter your official name.\n3. Study the lesson and PDF.\n4. Download the day-specific exercise dataset and import it into Google Sheets where Google Sheets is the required tool.\n5. Complete the work, share the Google Sheet and paste its URL in the app.\n6. Export the course record and send it to the trainer.\n\nTRAINER\n1. Open Kaldrix_Data_Analysis_Mastery_Trainer.html.\n2. Import the learner course record.\n3. Enter Trainer Mode, review the submission and approve or return it.\n4. Export the reviewed record back to the learner.\n\nAI LEARNING LAB\nThe AI Lab builds a lesson-aware coaching prompt. Copy & Open ChatGPT copies it using a clipboard fallback and opens ChatGPT. The learner pastes the prompt into ChatGPT and continues interactively. No API key is embedded in the HTML.\n\nCERTIFICATES\nA level certificate unlocks only after all 10 lessons in the level are trainer-approved and marked Done by the learner.\n""",encoding="utf-8")
+
+
+def build_zip():
+    path=ROOT/"Kaldrix_Data_Analysis_Mastery_Programme.zip"
+    if path.exists(): path.unlink()
+    with zipfile.ZipFile(path,"w",zipfile.ZIP_DEFLATED) as z:
+        for name in ["Kaldrix_Data_Analysis_Mastery_Learner.html","Kaldrix_Data_Analysis_Mastery_Trainer.html","Data_Analysis_Mastery_Roadmap.pdf","Trainer_Assessor_Guide.pdf","HOW_TO_USE_KALDRIX_PROGRAMME.txt"]:
+            z.write(ROOT/name,name)
+        for p in sorted(LESSONS.glob("*.pdf")): z.write(p,f"lessons/{p.name}")
+        for p in sorted(DATASETS.glob("*.xlsx")): z.write(p,f"day_datasets/{p.name}")
+    return path
+
+
+def main():
+    # clean generated directories so obsolete artifacts do not linger
+    for folder in [LESSONS,DATASETS]:
+        for p in folder.iterdir():
+            if p.is_file(): p.unlink()
+    lesson_paths={}
+    dataset_paths={}
+    for d in COURSE:
+        lesson_paths[str(d["day"])]=build_lesson_pdf(d)
+        dataset_paths[str(d["day"])]=build_dataset(d)
+    roadmap=build_roadmap()
+    build_trainer_guide()
+    write_instructions()
+    build_html(lesson_paths,dataset_paths,roadmap)
+    package=build_zip()
+    print(f"Built {len(lesson_paths)} lessons, {len(dataset_paths)} datasets and {package.name}")
+
+
+if __name__ == "__main__":
+    main()
