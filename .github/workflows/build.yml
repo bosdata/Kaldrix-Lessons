@@ -1,0 +1,57 @@
+name: Build Kaldrix Data Analysis Mastery Programme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - 'curriculum.json'
+      - 'build_project.py'
+      - 'requirements.txt'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: ${{ !startsWith(github.event.head_commit.message || '', 'chore(build):') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build dependencies
+        run: pip install -r requirements.txt
+      - name: Build programme
+        run: python build_project.py
+      - name: Validate generated learner/trainer JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for name in ['Kaldrix_Data_Analysis_Mastery_Learner.html','Kaldrix_Data_Analysis_Mastery_Trainer.html']:
+              s=Path(name).read_text(encoding='utf-8')
+              js='\n'.join(re.findall(r'<script>(.*?)</script>',s,re.S))
+              Path(name+'.jscheck').write_text(js,encoding='utf-8')
+          PY
+          node --check Kaldrix_Data_Analysis_Mastery_Learner.html.jscheck
+          node --check Kaldrix_Data_Analysis_Mastery_Trainer.html.jscheck
+          rm *.jscheck
+      - name: Commit generated programme
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Kaldrix_Data_Analysis_Mastery_Learner.html Kaldrix_Data_Analysis_Mastery_Trainer.html \
+            Data_Analysis_Mastery_Roadmap.pdf Trainer_Assessor_Guide.pdf \
+            HOW_TO_USE_KALDRIX_PROGRAMME.txt Kaldrix_Data_Analysis_Mastery_Programme.zip \
+            lessons day_datasets
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+          else
+            git commit -m 'chore(build): regenerate Kaldrix learning programme'
+            git push
+          fi
