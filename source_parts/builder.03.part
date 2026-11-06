@@ -1,0 +1,66 @@
+IMESERIES"]
+        add_data_sheet(wb,"TIMESERIES",["Month","Value"],rows,[1])
+    elif day==40:
+        people=[[f"P-{i}",person(),random.choice(COUNTIES),random.choice(PROGRAMS)] for i in range(8001,8201)]
+        fact=[[f"F-{i+1:05d}",random.choice([r[0] for r in people]+["P-X"]),BASE_DATE+timedelta(days=random.randint(0,365)),random.randint(10,160),random.randint(0,180),random.randint(500,15000)] for i in range(600)]
+        src=["PEOPLE","FACT"]
+        add_data_sheet(wb,"PEOPLE",["Person_ID","Person_Name","County","Program"],people)
+        add_data_sheet(wb,"FACT",["Fact_ID","Person_ID","Date","Target","Actual","Cost_KES"],fact,[3])
+    elif day in [41,44,45,49]:
+        rows=[[f"E-{day:02d}-{i+1:04d}",random.choice(COUNTIES),random.choice(PROGRAMS),random.choice(["Intervention","Comparison"]),random.randint(20,160),random.randint(0,190),random.randint(500,15000),random.choice(["High","Medium","Low"])] for i in range(240)]
+        src=["CASE_DATA"]
+        add_data_sheet(wb,"CASE_DATA",["Record_ID","County","Program","Group","Target","Actual","Cost_KES","Risk"],rows)
+    else:
+        people=[[f"E-{i:04d}",person(),random.choice(COUNTIES),random.choice(PROGRAMS)] for i in range(1,181)]
+        activity=[[f"A-{i+1:05d}",random.choice([r[0] for r in people]+["E-9999"]),BASE_DATE+timedelta(days=random.randint(0,400)),random.choice(ACTIVITIES),random.randint(1,30),random.randint(500,10000)] for i in range(420)]
+        finance=[[f"T-{i+1:05d}",random.choice([r[0] for r in people]),BASE_DATE+timedelta(days=random.randint(0,400)),random.randint(100,18000),random.choice(["Approved","Pending","Rejected"])] for i in range(300)]
+        src=["PEOPLE","ACTIVITY","FINANCE"]
+        add_data_sheet(wb,"PEOPLE",["Entity_ID","Entity_Name","County","Program"],people)
+        add_data_sheet(wb,"ACTIVITY",["Activity_ID","Entity_ID","Date","Activity_Type","Units","Cost_KES"],activity,[3])
+        add_data_sheet(wb,"FINANCE",["Transaction_ID","Entity_ID","Date","Amount_KES","Approval"],finance,[3])
+        if day in [47,48,50]:
+            add_data_sheet(wb,"RULES",["Rule","Definition"],[["Engagement","Count activity only when Units >= 2"],["Expenditure","Use Approved finance only"],["Unmatched IDs","Must appear in exception report"],["Freshness","Show latest date from each source"]])
+            src.append("RULES")
+    return src
+
+
+def build_dataset(d: dict) -> Path:
+    wb=Workbook()
+    wb.remove(wb.active)
+    sources=build_sources(wb,d)
+    add_start_here(wb,d,sources)
+    path=DATASETS/f"Day_{d['day']:02d}_{d['level']}_Exercise_Dataset.xlsx"
+    wb.save(path)
+    return path
+
+# PDF helpers
+styles=getSampleStyleSheet()
+styles.add(ParagraphStyle(name="KTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=18, leading=22, textColor=colors.HexColor("#17365D"), alignment=TA_CENTER, spaceAfter=8))
+styles.add(ParagraphStyle(name="KSub", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=10.5, leading=14, textColor=colors.HexColor("#2F75B5"), alignment=TA_CENTER, spaceAfter=10))
+styles.add(ParagraphStyle(name="KH", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=11.5, leading=14, textColor=colors.HexColor("#17365D"), spaceBefore=6, spaceAfter=4))
+styles.add(ParagraphStyle(name="KB", parent=styles["BodyText"], fontSize=9.4, leading=13, spaceAfter=4))
+styles.add(ParagraphStyle(name="KSmall", parent=styles["BodyText"], fontSize=7.7, leading=9.5))
+
+
+def footer(canvas, doc):
+    canvas.saveState(); canvas.setFont("Helvetica",8); canvas.setFillColor(colors.HexColor("#6B7280")); canvas.drawString(15*mm,8*mm,"Kaldrix Limited · Data Analysis Mastery Programme"); canvas.drawRightString(195*mm,8*mm,f"Page {doc.page}"); canvas.restoreState()
+
+
+def build_lesson_pdf(d: dict) -> Path:
+    path=LESSONS/f"Day_{d['day']:02d}_{d['level']}.pdf"
+    flow=[Paragraph(f"DAY {d['day']} - {d['level'].upper()}",styles["KTitle"]),Paragraph(d["title"],styles["KSub"]),Paragraph(f"<b>Primary tool:</b> {d['tool']}",styles["KB"]),Paragraph("What you are learning",styles["KH"]),Paragraph(d["concepts"],styles["KB"]),Paragraph("Learning objectives",styles["KH"])]
+    for o in d["objectives"]: flow.append(Paragraph("- "+o,styles["KB"]))
+    flow += [Paragraph("Worked practical",styles["KH"]),Paragraph(d["practical"],styles["KB"]),Spacer(1,4)]
+    # compact visual table aligned with the lesson's analytical mindset
+    visual=[["Source / Input","Method","Output / Check"],["Raw data","Apply the lesson skill","Result linked to source"],["Change one input","Recalculate / rerun","Confirm expected change"],["Control total / test","Validate","Explain the result"]]
+    t=Table(visual,colWidths=[53*mm,58*mm,65*mm])
+    t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#2F75B5")),("TEXTCOLOR",(0,0),(-1,0),colors.white),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),("GRID",(0,0),(-1,-1),0.35,colors.HexColor("#CBD5E1")),("VALIGN",(0,0),(-1,-1),"TOP"),("FONTSIZE",(0,0),(-1,-1),8),("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#F7FAFC")])]))
+    flow += [t,Paragraph("Guided practice",styles["KH"]),Paragraph("1. Recreate the lesson idea on a small example.<br/>2. Change inputs and predict the result before recalculating.<br/>3. Complete the supplied independent dataset in the required tool.<br/>4. Create a control check or reconciliation.<br/>5. Explain the result in ordinary language.",styles["KB"]),Paragraph("AI coaching",styles["KH"]),Paragraph(d["ai_use"],styles["KB"]),Paragraph("AI discipline",styles["KH"]),Paragraph("Attempt first. Use AI for explanation, hints, debugging, critique, test cases and mock questioning. Never submit output you cannot explain and independently verify.",styles["KB"]),PageBreak(),Paragraph("Independent exercise",styles["KH"]),Paragraph(d["exercise"],styles["KB"]),Paragraph("Common failure modes",styles["KH"]),Paragraph("- Wrong grain or key.<br/>- Formula/query/code answers a different question.<br/>- Missing or unmatched records are silently ignored.<br/>- Findings are not reconciled to the numbers.<br/>- AI-generated logic is accepted without testing.",styles["KB"]),Paragraph("Mastery gate",styles["KH"]),Paragraph("[ ] I can reproduce the method without copying.<br/>[ ] I can trace the result to the source.<br/>[ ] I have a QA/control check.<br/>[ ] I can explain a limitation.<br/>[ ] I can answer an assessor's follow-up question without asking AI.",styles["KB"])]
+    doc=SimpleDocTemplate(str(path),pagesize=A4,rightMargin=15*mm,leftMargin=15*mm,topMargin=13*mm,bottomMargin=14*mm)
+    doc.build(flow,onFirstPage=footer,onLaterPages=footer)
+    return path
+
+
+def build_roadmap() -> Path:
+    path=ROOT/"Data_Analysis_Mastery_Roadmap.pdf"
+    flow=[Paragraph("KALDRIX DATA ANALYSIS MASTERY ROADMAP",styles["KTitle"]),Paragraph("10 weeks · 50 practical learning days · Beginner → Intermediate → Advanced → Pro → Expert",styles["KSub"]),Paragraph("The programme develops real analytical capability through practical data, trainer review, QA and 
