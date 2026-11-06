@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""Build the complete Kaldrix Data Analysis Mastery Programme.
+
+Generates the same public entry-point names used by learners/trainers, 50 lesson
+PDFs, 50 day-specific exercise datasets, programme PDFs, and a distributable ZIP.
+"""
+from __future__ import annotations
+
+import base64
+import json
+import random
+import shutil
+import zipfile
+from datetime import datetime, timedelta
+from pathlib import Path
+
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.utils import get_column_letter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+
+ROOT = Path(__file__).resolve().parent
+COURSE = json.loads((ROOT / "curriculum.json").read_text(encoding="utf-8"))
+TEMPLATE = (ROOT / "src" / "Kaldrix_Data_Analysis_Mastery.template.html").read_text(encoding="utf-8")
+LOGO_B64 = (ROOT / "assets" / "kaldrix_logo.base64.txt").read_text(encoding="ascii").strip()
+LOGO_DATA = "data:image/png;base64," + LOGO_B64
+
+LESSONS = ROOT / "lessons"
+DATASETS = ROOT / "day_datasets"
+LESSONS.mkdir(exist_ok=True)
+DATASETS.mkdir(exist_ok=True)
+
+random.seed(20261106)
+FIRST = ["Amina","Brian","Carol","David","Edwin","Faith","Grace","Hassan","Irene","James","Kevin","Lilian","Mercy","Nancy","Oscar","Patricia","Rose","Samuel","Tracy","Victor","Winnie","Yvonne"]
+LAST = ["Otieno","Omondi","Wekesa","Achieng","Mutiso","Mwangi","Ouma","Naliaka","Odhiambo","Wafula","Atieno","Kiptoo","Musyoka","Were","Okello","Barasa"]
+COUNTIES = ["Kisumu","Kakamega","Siaya","Vihiga"]
+PROGRAMS = ["Education","Agriculture","Digital Skills","Livelihoods"]
+ACTIVITIES = ["Training","Field Visit","Mentorship","Support","Community Meeting"]
+BASE_DATE = datetime(2026, 1, 1)
+
+BLUE = "2F75B5"
+NAVY = "17365D"
+PALE = "D9EAF7"
+WHITE = "FFFFFF"
+THIN = Side(style="thin", color="D8E0E7")
+
+
+def person() -> str:
+    return f"{random.choice(FIRST)} {random.choice(LAST)}"
+
+
+def style_header(ws, row=1):
+    for cell in ws[row]:
+        cell.fill = PatternFill("solid", fgColor=BLUE)
+        cell.font = Font(bold=True, color=WHITE)
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cell.border = Border(bottom=THIN)
+
+
+def add_data_sheet(wb: Workbook, name: str, headers: list[str], rows: list[list], date_cols: list[int] | None = None):
+    ws = wb.create_sheet(name)
+    ws.append(headers)
+    for row in rows:
+        ws.append(row)
+    style_header(ws, 1)
+    ws.freeze_panes = "A2"
+    date_cols = date_cols or []
+    for idx, header in enumerate(headers, 1):
+        width = 24 if "Name" in header else 16
+        if header in {"Description", "Definition", "Question", "Rule"}:
+            width = 38
+        ws.column_dimensions[get_column_letter(idx)].width = width
+        if idx in date_cols:
+            for c in ws.iter_cols(min_col=idx, max_col=idx, min_row=2):
+                for cell in c:
+                    cell.number_format = "dd-mmm-yyyy"
+    for row in ws.iter_rows():
+        for cell in row:
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+    return ws
+
+
+def add_start_here(wb: Workbook, d: dict, sources: list[str]):
+    ws = wb.create_sheet("START_HERE", 0)
+    ws.merge_cells("A1:D1")
+    c = ws["A1"]
+    c.value = f"KALDRIX DAY {d['day']} EXERCISE DATASET"
+    c.fill = PatternFill("solid", fgColor=NAVY)
+    c.font = Font(bold=True, color=WHITE, size=14)
+    c.alignment = Alignment(horizontal="center")
+    meta = [
+        ("Lesson", d["title"]),
+        ("Level", d["level"]),
+        ("Primary tool", d["tool"]),
+        ("Source tab(s)", ", ".join(sources)),
+        ("Independent exercise", d["exercise"]),
+        ("Google Sheets workflow", "Upload/import this file into Google Sheets, complete the work there, share the Google Sheet with the trainer, then paste its URL into the Kaldrix app."),
+    ]
+    for r, (k, v) in enumerate(meta, 3):
+        ws.cell(r, 1, k)
+        ws.cell(r, 2, v)
+        ws.cell(r, 1).fill = PatternFill("solid", fgColor=PALE)
+        ws.cell(r, 1).font = Font(bold=True)
+        ws.cell(r, 1).alignment = ws.cell(r, 2).alignment = Alignment(vertical="top", wrap_text=True)
+    ws.column_dimensions["A"].width = 24
+    ws.column_dimensions["B"].width = 90
+    ws.append([])
+    header_row = 10
+    for col, value in enumerate(["No.", "Task", "Status"], 1):
+        ws.cell(header_row, col, value)
+    style_header(ws, header_row)
+    tasks = list(d["objectives"]) + [
+        d["practical"],
+        "Create at least one QA/control check.",
+        "Write 2-5 evidence-based findings or a short explanation appropriate to the lesson.",
+    ]
+    dv = DataValidation(type="list", formula1='"Not Started,In Progress,Completed"', allow_blank=False)
+    ws.add_data_validation(dv)
+    for i, task in enumerate(tasks, 1):
+        r = header_row + i
+        ws.cell(r, 1, i)
+        ws.cell(r, 2, task)
+        ws.cell(r, 3, "Not Started")
+        dv.add(ws.cell(r, 3))
+        for cell in ws[r]:
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+    ws.column_dimensions["A"].width = 8
+    ws.column_dimensions["B"].width = 80
+    ws.column_dimensions["C"].width = 18
+
+
+def build_sources(wb: Workbook, d: dict) -> list[str]:
+    day = d["day"]
+    src: list[str] = []
+    if day <= 10:
+        rows = []
+        n = 75 if day < 10 else 140
+        for i in range(n):
+            total = random.choice([8, 10, 12]); att = random.randint(3, total); pre = random.randint(25, 80); post = min(100, pre + random.randint(-5, 25))
+            rows.append([f"P-{day:02d}-{i+1:04d}", person(), random.choice(COUNTIES), random.choice(PROGRAMS), att, total, pre, post, random.choice(["Completed","Completed","Pending"]), random.choice([0,150,200,250,300,400])])
+        if day in [7, 8, 10]:
+            rows[4][1] = "  " + rows[4][1].upper() + " "; rows[11][2] = " kisumu "; rows[24][7] = 105; rows.append(list(rows[30]))
+        src = ["DATA"]
+        add_data_sheet(wb, "DATA", ["Record_ID","Participant_Name","County","Program","Sessions_Attended","Total_Sessions","Pre_Test","Post_Test","Status","Transport_KES"], rows)
+    elif day in [11,12,16,17,18,19]:
+        rows=[]
+        for i in range(160):
+            target=random.randint(20,140); actual=max(0,target+random.randint(-45,35))
+            rows.append([f"R-{day:02d}-{i+1:04d}",f"P-{1000+random.randint(1,125):04d}",person(),random.choice(COUNTIES),random.choice(PROGRAMS),BASE_DATE+timedelta(days=random.randint(0,220)),target,actual,random.randint(500,14000),random.choice(["Low","Medium","High"])])
+        if day==18:
+            rows.append(list(rows[20])); rows[40][2]=None; rows[75][7]=190; rows[95][8]=-50
+        src=["DATA"]
+  
