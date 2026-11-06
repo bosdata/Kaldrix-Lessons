@@ -1,0 +1,46 @@
+"></div></section>
+</main>
+<footer>Designed and built by Kaldrix Limited · Data Analysis Mastery Programme</footer>
+<div class="modal" id="modal"><div class="modalbox"><button class="close printHide" onclick="closeModal()">Close</button><div id="modalBody"></div></div></div>
+
+<script>
+window.KALDRIX_TRAINER_APP=__TRAINER_APP__;
+const COURSE=__COURSE__;
+const PDFS=__PDFS__;
+const WORKBOOKS={};
+const DATASETS=__DATASETS__;
+const MASTER=__MASTER__;
+const LEVELS=['Beginner','Intermediate','Advanced','Pro','Expert'];
+const DESC={Beginner:'Starts at absolute beginner level: spreadsheet structure, formulas, descriptive statistics, cleaning, charts and sound analytical habits.',Intermediate:'Multi-condition formulas, lookups, Pivot Tables, reconciliation, QA and KPI design.',Advanced:'SQL, Power BI, DAX, statistics and decision-focused dashboards.',Pro:'Python/pandas, reproducible analysis, automation, experimentation, forecasting and governance.',Expert:'Problem framing, architecture, metric governance, model audit, causal reasoning, AI verification and stakeholder defense.'};
+let current='Beginner';
+let trainer=false; const TRAINER_APP = window.KALDRIX_TRAINER_APP===true; if(TRAINER_APP){document.body.classList.add('trainerApp');}
+
+function st(){try{return JSON.parse(localStorage.getItem('kaldrix-dam-v3')||'{}')}catch(e){return {}}}
+function save(s){localStorage.setItem('kaldrix-dam-v3',JSON.stringify(s))}
+function sk(d,x){return x+'_'+d}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(x){if(!x)return '';let d=new Date(x+'T12:00:00');return d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}
+
+function tabs(){let el=document.getElementById('tabs');el.innerHTML='';LEVELS.forEach(l=>{let b=document.createElement('button');b.className='tab'+(l===current?' active':'');b.textContent=l;b.onclick=()=>{current=l;tabs();render()};el.appendChild(b)})}
+function statusFor(d,s){if(s[sk(d,'done')])return 'completed';if(s[sk(d,'approved')])return 'approved';if(s[sk(d,'sheet')])return 'submitted';return 'not-started'}
+function render(){
+ let s=st(), ds=COURSE.filter(x=>x.level===current), approved=ds.filter(d=>s[sk(d.day,'approved')]).length, completed=ds.filter(d=>s[sk(d.day,'done')]).length, submitted=ds.filter(d=>s[sk(d.day,'sheet')]).length;
+ document.getElementById('approvedStat').textContent=approved+'/10';document.getElementById('submittedStat').textContent=completed+'/10';document.getElementById('levelPct').textContent=Math.round(completed/10*100)+'%';
+ let cap=ds.find(d=>d.capstone);document.getElementById('capstoneStat').textContent=cap&&s[sk(cap.day,'approved')]?'Approved':'Not approved';
+ let completion=levelCompletion(current,s), certReady=approved===10 && completed===10 && !!completion;
+ let cards=ds.map(d=>{let status=statusFor(d.day,s),link=s[sk(d.day,'sheet')]||'',fb=s[sk(d.day,'feedback')]||'';return `
+ <article class="lesson ${status}">
+ <div class="lessonTop"><div class="daynum">${String(d.day).padStart(2,'0')}</div><div class="lessonTitle"><h3>${esc(d.title)}</h3><p>${esc(d.tool)} · ${d.capstone?'Level capstone':'Practical lesson'}</p></div><span class="status ${status}">${status==='completed'?'DONE ✓':status==='approved'?'TRAINER APPROVED':status==='submitted'?'SUBMITTED':'NOT SUBMITTED'}</span></div>
+ <div class="lessonBody"><div><p style="font-size:13px;color:#66717c;margin-top:0">${esc(d.concepts)}</p><div class="actions"><button class="btn primary" onclick="openLesson(${d.day})">Lesson</button><button class="btn" onclick="openAICoachForDay(${d.day})">AI Coach</button><button class="btn" onclick="downloadData(PDFS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}.pdf')">PDF notes</button><button class="btn" onclick="downloadData(DATASETS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}_Exercise_Dataset.xlsx')">Exercise dataset</button><button class="btn" onclick="openGoogleSheets()">New Google Sheet</button></div></div>
+ <div class="submission"><label>GOOGLE SHEETS SUBMISSION LINK</label><div class="linkrow"><input value="${esc(link)}" placeholder="Paste https://docs.google.com/spreadsheets/..." onchange="submitLink(${d.day},this.value)"><button class="btn" onclick="openSubmitted(${d.day})">Open</button></div><div class="feedback">${fb?'<b>Trainer feedback:</b> '+esc(fb):'Paste the Google Sheet link after completing the exercise and share access with your trainer.'}</div>
+ <div class="datasetHelp">Dataset workflow: download the day-specific dataset → upload/import it into Google Sheets → complete the work → share the Google Sheet → paste its link here.</div>
+ <label class="donecheck ${s[sk(d.day,'approved')]?'':'locked'}"><input type="checkbox" ${s[sk(d.day,'done')]?'checked':''} ${s[sk(d.day,'approved')]?'':'disabled'} onchange="markDone(${d.day},this.checked)"> <span>${s[sk(d.day,'approved')]?'I have reviewed the trainer approval and finished this lesson.':'Locked until trainer approval.'}</span></label>
+ <div class="trainerApprove"><button class="btn" onclick="approve(${d.day},true)">Approve</button><button class="btn" onclick="approve(${d.day},false)">Return for correction</button><input id="fb_${d.day}" placeholder="Optional trainer feedback" style="flex:1;min-width:180px;border:1px solid #ccd5dd;border-radius:6px;padding:8px"></div></div></div></article>`}).join('');
+ document.getElementById('course').innerHTML=`<div class="levelhead"><div><h2>${current}</h2><p>${DESC[current]}</p></div><div class="certificateState ${certReady?'ready':''}">${certReady?`Certificate unlocked · ${fmtDate(completion)}`:'Certificate unlocks after all 10 lessons are trainer-approved and marked Done by the learner'}</div></div>${certReady?`<div style="margin-bottom:12px"><button class="btn primary" onclick="certificate('${current}')">View / Print ${current} Certificate</button></div>`:''}<div class="lessonlist">${cards}</div>`;
+ overall();
+}
+function overall(){let s=st(),n=COURSE.filter(d=>s[sk(d.day,'done')]).length;document.getElementById('globalText').textContent=n+' / 50 lessons completed';document.getElementById('globalBar').style.width=(n/50*100)+'%'}
+function submitLink(day,val){let s=st();s[sk(day,'sheet')]=val.trim();if(!val.trim()){delete s[sk(day,'approved')];delete s[sk(day,'approvedDate')];delete s[sk(day,'done')]}save(s);render()}
+function openSubmitted(day){let u=st()[sk(day,'sheet')];if(!u)return alert('No Google Sheets link has been submitted yet.');if(!/^https:\/\/docs\.google\.com\/spreadsheets\//.test(u))return alert('Please submit a valid Google Sheets link.');window.open(u,'_blank')}
+function approve(day,yes){if(!trainer)return alert('Trainer Mode is required.');let s=st(),fb=document.getElementById('fb_'+day)?.value||'';if(yes){if(!s[sk(day,'sheet')] && day<=20)return alert('A Google Sheets submission link is required before approval.');s[sk(day,'approved')]=
