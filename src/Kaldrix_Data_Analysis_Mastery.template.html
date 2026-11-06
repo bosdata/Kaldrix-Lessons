@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kaldrix Data Analysis Mastery Programme</title>
+<style>
+:root{--paper:#f7f5f1;--ink:#172232;--muted:#6b7280;--line:#d9dee5;--blue:#1678b8;--blue2:#0f5f96;--soft:#edf5fa;--green:#2f7b4b;--greenbg:#edf8f0;--gold:#a77922;--goldbg:#fff7e5;--red:#a34141;--redbg:#fff0f0;--card:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.topline{height:5px;background:#111}
+header{background:#fff;border-bottom:1px solid var(--line)}.mast{max-width:1320px;margin:auto;padding:26px 30px 20px;display:flex;justify-content:space-between;gap:30px;align-items:flex-end}
+.brand img{height:64px;display:block}.brand small{display:block;color:#707988;margin-top:8px;font-size:12px;letter-spacing:.04em}
+.program{text-align:right}.program h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;margin:0;font-size:34px;letter-spacing:-.02em}.program p{margin:7px 0 0;color:var(--muted);font-size:14px}
+.profilebar{background:#f0f4f7;border-bottom:1px solid var(--line)}.profileinner{max-width:1320px;margin:auto;padding:13px 30px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.profileinner label{font-size:12px;color:#586474;font-weight:700}.profileinner input{border:1px solid #cbd3db;background:#fff;padding:8px 10px;border-radius:6px;min-width:250px}
+.progwrap{margin-left:auto;min-width:300px}.progline{height:7px;background:#dde4ea;border-radius:99px;overflow:hidden}.progline span{display:block;height:100%;width:0;background:var(--blue)}.progtext{font-size:12px;color:#596575;margin-top:5px;text-align:right}
+main{max-width:1320px;margin:auto;padding:26px 30px 90px}.intro{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;margin-bottom:25px}.introbox{background:#fff;border:1px solid var(--line);padding:22px;border-radius:10px}.introbox h2{font-family:Georgia,serif;font-weight:500;margin:0 0 8px;font-size:25px}.introbox p{color:#5f6976;line-height:1.6;margin:0}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.quick button{border:1px solid #cbd4dc;background:#fff;border-radius:7px;padding:10px;text-align:left;color:#263445;font-weight:650}.quick button:hover{border-color:var(--blue);color:var(--blue2)}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin:28px 0 20px;overflow:auto}.tab{border:0;background:none;padding:13px 18px;color:#697482;font-weight:700;border-bottom:3px solid transparent;white-space:nowrap}.tab.active{color:var(--blue2);border-bottom-color:var(--blue)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}.stat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:15px}.stat strong{display:block;font-family:Georgia,serif;font-size:25px;font-weight:500}.stat span{font-size:12px;color:#77808b}
+.levelhead{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin:18px 0 12px}.levelhead h2{font-family:Georgia,serif;font-weight:500;font-size:30px;margin:0}.levelhead p{max-width:720px;color:#68727e;margin:5px 0 0;line-height:1.5}
+.certificateState{padding:8px 11px;border-radius:6px;background:#eef1f4;color:#66717e;font-size:12px;font-weight:700}.certificateState.ready{background:var(--goldbg);color:#7a5618;border:1px solid #ead29f}
+.lessonlist{display:flex;flex-direction:column;gap:10px}.lesson{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}.lesson.approved{border-left:4px solid var(--green)}.lesson.submitted{border-left:4px solid var(--gold)}.lesson.completed{border-left:4px solid var(--blue)}.lessonTop{display:grid;grid-template-columns:64px 1fr auto;gap:15px;align-items:center;padding:16px}
+.daynum{font-family:Georgia,serif;font-size:24px;color:#53606e;text-align:center}.lessonTitle h3{margin:0;font-size:16px}.lessonTitle p{margin:5px 0 0;color:#737d88;font-size:13px}.status{font-size:11px;font-weight:800;padding:6px 8px;border-radius:5px;background:#eef1f4;color:#67717d;white-space:nowrap}.status.submitted{background:var(--goldbg);color:#805a16}.status.approved{background:var(--greenbg);color:#28623d}.status.completed{background:#e8f3fb;color:#0f5f96}
+.lessonBody{border-top:1px solid #edf0f2;padding:14px 16px 16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;gap:7px;flex-wrap:wrap}.btn{border:1px solid #c6d0d8;background:#fff;color:#2b3947;border-radius:6px;padding:8px 10px;font-size:12px;font-weight:700}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn:hover{filter:brightness(.98)}.submission{background:#f8fafb;border:1px solid #e1e6ea;border-radius:7px;padding:12px}.submission label{display:block;font-size:11px;color:#657180;font-weight:800;margin-bottom:6px}.linkrow{display:flex;gap:7px}.linkrow input{flex:1;border:1px solid #ccd5dd;border-radius:6px;padding:8px;font-size:12px}.feedback{margin-top:8px;color:#687482;font-size:12px}.donecheck{margin-top:10px;padding-top:10px;border-top:1px solid #dde4e9;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#4f5c68}.donecheck input{margin-top:2px;width:16px;height:16px}.donecheck.locked{color:#929aa3}.datasetHelp{margin-top:7px;font-size:11px;color:#79838d}.trainerApprove{margin-top:9px;padding-top:9px;border-top:1px dashed #d6dde3;display:none}body.trainer .trainerApprove{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.tools{margin-top:32px;border-top:1px solid var(--line);padding-top:24px}.tools h2{font-family:Georgia,serif;font-weight:500}.aiCoach{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(360px,1.1fr);gap:14px;margin:16px 0 22px}.aiComposer,.aiPreview{background:#fff;border:1px solid var(--line);border-radius:9px;padding:15px}.aiLabel{display:block;font-size:11px;font-weight:800;color:#596675;margin:0 0 6px}.aiControl,.aiText,.aiPromptPreview{width:100%;border:1px solid #cbd4dc;background:#fff;color:var(--ink);border-radius:6px;padding:9px 10px}.aiControl{margin-bottom:12px}.aiText{min-height:122px;resize:vertical;margin-bottom:10px;line-height:1.5}.aiPreview{display:flex;flex-direction:column}.aiPreviewHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:9px}.aiPreviewHead span{max-width:60%;font-size:10px;color:#7a8490;text-align:right;line-height:1.4}.aiPromptPreview{flex:1;min-height:268px;resize:vertical;background:#fafbfc;line-height:1.5;font-family:"Segoe UI",Arial,sans-serif;font-size:12px}.aiStatus{min-height:18px;margin-top:8px;font-size:12px;color:#356b49}.aiStatus.error{color:#a34141}.aiQuickTitle{font-family:Georgia,serif;font-weight:500;margin:4px 0 10px}.aiGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}.aiCard{background:#fff;border:1px solid var(--line);border-radius:8px;padding:13px}.aiCard strong{font-size:13px}.aiCard p{color:#66717d;font-size:12px;line-height:1.45;margin:7px 0 10px}.aiCard .btn{margin-right:5px}.aiCard.active{border-color:var(--blue);box-shadow:0 0 0 2px #1678b81a}
+.modal{position:fixed;inset:0;background:#1119;display:none;align-items:center;justify-content:center;padding:20px;z-index:100}.modal.show{display:flex}.modalbox{background:#fff;border-radius:10px;width:min(960px,96vw);max-height:92vh;overflow:auto;padding:24px;box-shadow:0 20px 60px #0004}.close{float:right;border:1px solid #cfd7df;background:#fff;border-radius:6px;padding:7px 9px}
+.cert{border:12px double #1f344a;padding:42px;text-align:center;background:#fff;min-height:650px;position:relative}.cert img{height:70px;margin-bottom:20px}.cert h1{font-family:Georgia,serif;font-size:42px;font-weight:500;margin:12px 0 4px}.cert .subtitle{letter-spacing:.18em;font-size:11px;color:#5d6873}.cert .name{font-family:Georgia,serif;font-size:34px;margin:30px 0 10px;border-bottom:1px solid #9fa9b2;display:inline-block;padding:0 35px 7px}.cert p{font-size:15px;line-height:1.7;color:#424d59}.cert .level{font-family:Georgia,serif;font-size:25px;color:#0f5f96}.certfoot{display:flex;justify-content:space-between;gap:40px;margin-top:60px}.sign{flex:1;border-top:1px solid #818b95;padding-top:8px;font-size:12px}.certnote{font-size:10px;color:#7a848e;margin-top:30px}
+.trainerpanel{background:#fff;border:1px solid var(--line);border-radius:9px;padding:16px;margin-bottom:18px;display:none}body.trainer .trainerpanel{display:block}.trainerpanel h3{margin-top:0}.trainerTag{display:none;color:#27653e;background:var(--greenbg);border:1px solid #cbe8d4;border-radius:6px;padding:7px 10px;font-size:12px;font-weight:800}body.trainer .trainerTag{display:inline-block}.trainerOnly{display:none}body.trainerApp .trainerOnly{display:block}
+footer{border-top:1px solid var(--line);padding:25px;text-align:center;color:#7a848f;font-size:12px;background:#fff}
+@media(max-width:850px){.aiCoach{grid-template-columns:1fr}.aiPreviewHead{flex-direction:column}.aiPreviewHead span{max-width:100%;text-align:left}.mast{flex-direction:column;align-items:flex-start}.program{text-align:left}.intro{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.lessonTop{grid-template-columns:50px 1fr}.status{grid-column:2}.lessonBody{grid-template-columns:1fr}.progwrap{width:100%;margin-left:0}}
+@media print{body>*:not(.modal){display:none!important}.modal{position:static;display:block!important;background:white;padding:0}.modalbox{box-shadow:none;max-height:none;width:100%;padding:0}.close,.printHide{display:none!important}.cert{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="topline"></div>
+<header><div class="mast"><div class="brand"><img src="__LOGO_DATA__" alt="Kaldrix logo"><small>Built by Kaldrix Limited · Data & Technology Learning Programme</small></div><div class="program"><h1>Data Analysis Mastery</h1><p>Absolute Beginner → Intermediate → Advanced → Pro → Expert</p></div></div></header>
+<div class="profilebar"><div class="profileinner"><label>Official learner name</label><input id="learnerName" placeholder="Use the name that should appear on certificates"><span id="trainerTag" class="trainerTag">Trainer Mode</span><div class="progwrap"><div class="progline"><span id="globalBar"></span></div><div class="progtext" id="globalText">0 / 50 lessons trainer-approved</div></div></div></div>
+
+<main>
+<section class="intro"><div class="introbox"><h2>Learn the work. Prove the work.</h2><p>This programme is designed around real analytical capability rather than completion clicks. Learners study the lesson, perform the practical work in Google Sheets or the relevant analysis tool, submit evidence, and progress only after trainer approval. Higher levels introduce SQL, Power BI, statistics, Python, automation, governance, communication and disciplined use of AI.</p></div>
+<div class="introbox"><div class="quick"><button onclick="downloadData(MASTER,'Kaldrix_Data_Analysis_Mastery_Roadmap.pdf')">Full roadmap PDF</button><button onclick="openGoogleSheets()">Create Google Sheet</button><button class="trainerOnly" onclick="trainerLogin()">Trainer Mode</button><button onclick="exportRecord()">Export course record</button><button onclick="document.getElementById('recordImport').click()">Import course record</button><input id="recordImport" type="file" accept=".json,application/json" style="display:none" onchange="importRecord(this)"></div></div></section>
+
+<div class="trainerpanel"><h3>Trainer controls</h3><p>You are reviewing this browser's learner record. Open submitted Google Sheets, review the work, then approve or return the lesson. Certificates use the date of the final approval in each level.</p><button class="btn" onclick="trainerLogout()">Exit Trainer Mode</button></div>
+
+<nav class="tabs" id="tabs"></nav>
+<div class="stats"><div class="stat"><strong id="approvedStat">0/10</strong><span>trainer-approved in this level</span></div><div class="stat"><strong id="submittedStat">0/10</strong><span>learner-marked done</span></div><div class="stat"><strong id="levelPct">0%</strong><span>completed progress</span></div><div class="stat"><strong id="capstoneStat">Not approved</strong><span>level capstone</span></div></div>
+<section id="course"></section>
+
+<section class="tools" id="aiLab"><h2>AI Learning Lab</h2><p style="color:#68727e">Use AI as a tutor, debugger, reviewer and mock assessor. Choose the lesson, tell the coach what you are working on, then the app builds a lesson-aware prompt. The prompt is copied reliably even when this HTML is opened locally, and ChatGPT opens in a new tab for the learner to continue.</p><div class="aiCoach"><div class="aiComposer"><label class="aiLabel" for="aiLesson">Lesson</label><select id="aiLesson" class="aiControl"></select><label class="aiLabel" for="aiMode">How should AI help?</label><select id="aiMode" class="aiControl"></select><label class="aiLabel" for="aiInput">Your attempt, question or difficulty</label><textarea id="aiInput" class="aiText" placeholder="Example: I tried =AVERAGE(E2:E20), but I am not sure whether blanks affect the result. Please guide me without solving the whole exercise."></textarea><div class="actions"><button class="btn primary" onclick="buildAIPrompt(true)">Build coaching prompt</button><button class="btn" onclick="copyAndOpenChatGPT()">Copy &amp; Open ChatGPT</button><button class="btn" onclick="copyBuiltPrompt()">Copy prompt</button><button class="btn" onclick="clearAICoach()">Clear</button></div><div id="aiStatus" class="aiStatus" aria-live="polite"></div></div><div class="aiPreview"><div class="aiPreviewHead"><strong>Prepared prompt</strong><span>Never paste confidential or personal data unless Kaldrix has approved that use.</span></div><textarea id="aiPromptPreview" class="aiPromptPreview" readonly placeholder="Your lesson-aware coaching prompt will appear here."></textarea></div></div><h3 class="aiQuickTitle">Quick coaching modes</h3><div class="aiGrid" id="aiGrid"></div></section>
+</main>
+<footer>Designed and built by Kaldrix Limited · Data Analysis Mastery Programme</footer>
+<div class="modal" id="modal"><div class="modalbox"><button class="close printHide" onclick="closeModal()">Close</button><div id="modalBody"></div></div></div>
+
+<script>
+window.KALDRIX_TRAINER_APP=__TRAINER_APP__;
+const COURSE=__COURSE__;
+const PDFS=__PDFS__;
+const WORKBOOKS={};
+const DATASETS=__DATASETS__;
+const MASTER=__MASTER__;
+const LEVELS=['Beginner','Intermediate','Advanced','Pro','Expert'];
+const DESC={Beginner:'Starts at absolute beginner level: spreadsheet structure, formulas, descriptive statistics, cleaning, charts and sound analytical habits.',Intermediate:'Multi-condition formulas, lookups, Pivot Tables, reconciliation, QA and KPI design.',Advanced:'SQL, Power BI, DAX, statistics and decision-focused dashboards.',Pro:'Python/pandas, reproducible analysis, automation, experimentation, forecasting and governance.',Expert:'Problem framing, architecture, metric governance, model audit, causal reasoning, AI verification and stakeholder defense.'};
+let current='Beginner';
+let trainer=false; const TRAINER_APP = window.KALDRIX_TRAINER_APP===true; if(TRAINER_APP){document.body.classList.add('trainerApp');}
+
+function st(){try{return JSON.parse(localStorage.getItem('kaldrix-dam-v3')||'{}')}catch(e){return {}}}
+function save(s){localStorage.setItem('kaldrix-dam-v3',JSON.stringify(s))}
+function sk(d,x){return x+'_'+d}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(x){if(!x)return '';let d=new Date(x+'T12:00:00');return d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}
+
+function tabs(){let el=document.getElementById('tabs');el.innerHTML='';LEVELS.forEach(l=>{let b=document.createElement('button');b.className='tab'+(l===current?' active':'');b.textContent=l;b.onclick=()=>{current=l;tabs();render()};el.appendChild(b)})}
+function statusFor(d,s){if(s[sk(d,'done')])return 'completed';if(s[sk(d,'approved')])return 'approved';if(s[sk(d,'sheet')])return 'submitted';return 'not-started'}
+function render(){
+ let s=st(), ds=COURSE.filter(x=>x.level===current), approved=ds.filter(d=>s[sk(d.day,'approved')]).length, completed=ds.filter(d=>s[sk(d.day,'done')]).length, submitted=ds.filter(d=>s[sk(d.day,'sheet')]).length;
+ document.getElementById('approvedStat').textContent=approved+'/10';document.getElementById('submittedStat').textContent=completed+'/10';document.getElementById('levelPct').textContent=Math.round(completed/10*100)+'%';
+ let cap=ds.find(d=>d.capstone);document.getElementById('capstoneStat').textContent=cap&&s[sk(cap.day,'approved')]?'Approved':'Not approved';
+ let completion=levelCompletion(current,s), certReady=approved===10 && completed===10 && !!completion;
+ let cards=ds.map(d=>{let status=statusFor(d.day,s),link=s[sk(d.day,'sheet')]||'',fb=s[sk(d.day,'feedback')]||'';return `
+ <article class="lesson ${status}">
+ <div class="lessonTop"><div class="daynum">${String(d.day).padStart(2,'0')}</div><div class="lessonTitle"><h3>${esc(d.title)}</h3><p>${esc(d.tool)} · ${d.capstone?'Level capstone':'Practical lesson'}</p></div><span class="status ${status}">${status==='completed'?'DONE ✓':status==='approved'?'TRAINER APPROVED':status==='submitted'?'SUBMITTED':'NOT SUBMITTED'}</span></div>
+ <div class="lessonBody"><div><p style="font-size:13px;color:#66717c;margin-top:0">${esc(d.concepts)}</p><div class="actions"><button class="btn primary" onclick="openLesson(${d.day})">Lesson</button><button class="btn" onclick="openAICoachForDay(${d.day})">AI Coach</button><button class="btn" onclick="downloadData(PDFS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}.pdf')">PDF notes</button><button class="btn" onclick="downloadData(DATASETS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}_Exercise_Dataset.xlsx')">Exercise dataset</button><button class="btn" onclick="openGoogleSheets()">New Google Sheet</button></div></div>
+ <div class="submission"><label>GOOGLE SHEETS SUBMISSION LINK</label><div class="linkrow"><input value="${esc(link)}" placeholder="Paste https://docs.google.com/spreadsheets/..." onchange="submitLink(${d.day},this.value)"><button class="btn" onclick="openSubmitted(${d.day})">Open</button></div><div class="feedback">${fb?'<b>Trainer feedback:</b> '+esc(fb):'Paste the Google Sheet link after completing the exercise and share access with your trainer.'}</div>
+ <div class="datasetHelp">Dataset workflow: download the day-specific dataset → upload/import it into Google Sheets → complete the work → share the Google Sheet → paste its link here.</div>
+ <label class="donecheck ${s[sk(d.day,'approved')]?'':'locked'}"><input type="checkbox" ${s[sk(d.day,'done')]?'checked':''} ${s[sk(d.day,'approved')]?'':'disabled'} onchange="markDone(${d.day},this.checked)"> <span>${s[sk(d.day,'approved')]?'I have reviewed the trainer approval and finished this lesson.':'Locked until trainer approval.'}</span></label>
+ <div class="trainerApprove"><button class="btn" onclick="approve(${d.day},true)">Approve</button><button class="btn" onclick="approve(${d.day},false)">Return for correction</button><input id="fb_${d.day}" placeholder="Optional trainer feedback" style="flex:1;min-width:180px;border:1px solid #ccd5dd;border-radius:6px;padding:8px"></div></div></div></article>`}).join('');
+ document.getElementById('course').innerHTML=`<div class="levelhead"><div><h2>${current}</h2><p>${DESC[current]}</p></div><div class="certificateState ${certReady?'ready':''}">${certReady?`Certificate unlocked · ${fmtDate(completion)}`:'Certificate unlocks after all 10 lessons are trainer-approved and marked Done by the learner'}</div></div>${certReady?`<div style="margin-bottom:12px"><button class="btn primary" onclick="certificate('${current}')">View / Print ${current} Certificate</button></div>`:''}<div class="lessonlist">${cards}</div>`;
+ overall();
+}
+function overall(){let s=st(),n=COURSE.filter(d=>s[sk(d.day,'done')]).length;document.getElementById('globalText').textContent=n+' / 50 lessons completed';document.getElementById('globalBar').style.width=(n/50*100)+'%'}
+function submitLink(day,val){let s=st();s[sk(day,'sheet')]=val.trim();if(!val.trim()){delete s[sk(day,'approved')];delete s[sk(day,'approvedDate')];delete s[sk(day,'done')]}save(s);render()}
+function openSubmitted(day){let u=st()[sk(day,'sheet')];if(!u)return alert('No Google Sheets link has been submitted yet.');if(!/^https:\/\/docs\.google\.com\/spreadsheets\//.test(u))return alert('Please submit a valid Google Sheets link.');window.open(u,'_blank')}
+function approve(day,yes){if(!trainer)return alert('Trainer Mode is required.');let s=st(),fb=document.getElementById('fb_'+day)?.value||'';if(yes){if(!s[sk(day,'sheet')] && day<=20)return alert('A Google Sheets submission link is required before approval.');s[sk(day,'approved')]=true;s[sk(day,'approvedDate')]=today();s[sk(day,'feedback')]=fb||'Approved by trainer.'}else{delete s[sk(day,'approved')];delete s[sk(day,'approvedDate')];delete s[sk(day,'done')];s[sk(day,'feedback')]=fb||'Returned for correction.'}save(s);render()}
+function markDone(day,checked){let s=st();if(!s[sk(day,'approved')]){alert('This lesson can only be marked Done after trainer approval.');render();return;}if(checked)s[sk(day,'done')]=true;else delete s[sk(day,'done')];save(s);render()}
+function levelCompletion(level,s){let ds=COURSE.filter(d=>d.level===level);if(!ds.every(d=>s[sk(d.day,'approved')]&&s[sk(d.day,'done')]))return null;let dates=ds.map(d=>s[sk(d.day,'approvedDate')]).filter(Boolean).sort();return dates[dates.length-1]||today()}
+function trainerLogin(){if(!TRAINER_APP)return alert('Trainer approval is available only in the Kaldrix Trainer Review App.');if(trainer)return;let s=st();if(!s.trainerPin){let p=prompt('Set a Trainer Mode PIN for this browser (minimum 4 characters).');if(!p||p.length<4)return alert('PIN not set.');s.trainerPin=p;save(s);trainer=true}else{let p=prompt('Enter Trainer Mode PIN');if(p!==s.trainerPin)return alert('Incorrect PIN.');trainer=true}document.body.classList.add('trainer');render()}
+function trainerLogout(){trainer=false;document.body.classList.remove('trainer');render()}
+function openGoogleSheets(){window.open('https://sheets.new','_blank')}
+function openLesson(day){let d=COURSE.find(x=>x.day===day);document.getElementById('modalBody').innerHTML=`<h2 style="font-family:Georgia,serif;font-weight:500">${esc(d.title)}</h2><p><b>${d.level} · Day ${d.day} · ${esc(d.tool)}</b></p><h3>What you are learning</h3><p>${esc(d.concepts)}</p><h3>Objectives</h3><ul>${d.objectives.map(o=>'<li>'+esc(o)+'</li>').join('')}</ul><h3>Practical</h3><p>${esc(d.practical)}</p><h3>AI coaching</h3><p>${esc(d.ai_use)}</p><h3>Independent exercise</h3><p>${esc(d.exercise)}</p><div class="actions printHide"><button class="btn primary" onclick="downloadData(PDFS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}.pdf')">Download PDF lesson</button><button class="btn" onclick="closeModal();openAICoachForDay(${d.day})">Open AI Coach</button><button class="btn" onclick="downloadData(DATASETS['${d.day}'],'Day_${String(d.day).padStart(2,'0')}_${d.level}_Exercise_Dataset.xlsx')">Download exercise dataset</button><button class="btn" onclick="openGoogleSheets()">Open a new Google Sheet</button></div>`;document.getElementById('modal').classList.add('show')}
+function certificate(level){let s=st(),date=levelCompletion(level,s),name=(document.getElementById('learnerName').value||'').trim();if(!name)return alert('Enter the learner\'s official name first.');if(!date)return alert('Certificate is locked until all lessons in this level are trainer-approved.');document.getElementById('modalBody').innerHTML=`<div class="cert"><img src="__LOGO_DATA__"><div class="subtitle">CERTIFICATE OF COMPLETION</div><h1>Data Analysis Mastery</h1><p>This certificate is proudly presented to</p><div class="name">${esc(name)}</div><p>for successfully completing the Kaldrix Limited</p><div class="level">${level} Level</div><p>and demonstrating the required practical competencies through trainer-reviewed analytical exercises, quality checks and applied project work.</p><div class="certfoot"><div class="sign"><b>Brian Sifuna Obware</b><br>CEO & Founder<br>Kaldrix Limited</div><div class="sign"><b>${fmtDate(date)}</b><br>Date of Completion</div></div><div class="certnote">Issued by Kaldrix Limited · Data Analysis Mastery Programme</div><div class="printHide" style="margin-top:20px"><button class="btn primary" onclick="window.print()">Print / Save as PDF</button></div></div>`;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function blob(data){let a=data.split(','),mime=a[0].match(/:(.*?);/)[1],bin=atob(a[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime})}
+function downloadData(data,name){try{let u=URL.createObjectURL(blob(data)),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}catch(e){alert('Download failed: '+e.message)}}
+
+function exportRecord(){
+ let s=st(),name=(document.getElementById('learnerName').value||'Learner').trim();
+ let record={version:'kaldrix-dam-3',learner:name,exportedAt:new Date().toISOString(),state:s};
+ let u=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'})),a=document.createElement('a');
+ a.href=u;a.download=name.replace(/\W+/g,'_')+'_Kaldrix_Course_Record.json';a.click();URL.revokeObjectURL(u);
+}
+function importRecord(input){
+ let f=input.files&&input.files[0]; if(!f)return;
+ let r=new FileReader();
+ r.onload=()=>{try{
+   let rec=JSON.parse(r.result);
+   if(rec.version!=='kaldrix-dam-3'||!rec.state)throw new Error('This is not a valid Kaldrix course record.');
+   if(!confirm('Import the course record for '+(rec.learner||'this learner')+'? This will replace the current local record.'))return;
+   save(rec.state);
+   if(rec.learner){document.getElementById('learnerName').value=rec.learner;localStorage.setItem('kaldrix-learner-name',rec.learner);}
+   render();
+   alert('Course record imported successfully.');
+ }catch(e){alert('Import failed: '+e.message)}};
+ r.readAsText(f); input.value='';
+}
+
+function exportProgress(){let s=st(),nm=document.getElementById('learnerName').value||'Learner',rows=COURSE.map(d=>[nm,d.day,d.level,d.title,s[sk(d.day,'sheet')]||'',!!s[sk(d.day,'approved')],s[sk(d.day,'approvedDate')]||'',s[sk(d.day,'feedback')]||'']);let csv='Learner,Day,Level,Title,GoogleSheet,Approved,ApprovalDate,TrainerFeedback\n'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');let u=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),a=document.createElement('a');a.href=u;a.download=nm.replace(/\W+/g,'_')+'_Kaldrix_Data_Analysis_Progress.csv';a.click();URL.revokeObjectURL(u)}
+
+const AI_MODES=[
+{name:'Tutor, not solver',desc:'Explain the concept with a fresh example and check understanding without completing the learner\'s assignment.',instruction:'Teach the concept step by step using a small new example. Do not solve the learner\'s full assignment. Ask two short checking questions after the explanation.'},
+{name:'One hint at a time',desc:'Give only the next useful hint so the learner keeps doing the work.',instruction:'Give exactly one useful hint at a time. Do not provide the final answer, formula, query, DAX measure or code unless the learner has made another attempt and explicitly asks for more.'},
+{name:'Debug my logic',desc:'Inspect a formula, SQL query, DAX measure, Python snippet or analytical rule.',instruction:'Diagnose the likely logical error. Explain why it is a problem and propose one small test case. Do not rewrite the entire solution unless necessary for the explanation.'},
+{name:'Challenge my finding',desc:'Stress-test an interpretation before the learner accepts it.',instruction:'Challenge the learner\'s finding. Give three plausible alternative explanations, confounders, data-quality concerns or interpretation risks, and state what evidence would distinguish them.'},
+{name:'Mock trainer',desc:'Question the learner like a real assessor and score the explanation.',instruction:'Act as a fair but demanding Kaldrix trainer. Ask one question at a time about accuracy, assumptions, QA, interpretation and limitations. After each learner response, give concise feedback before the next question.'},
+{name:'Extra practice',desc:'Create a fresh synthetic problem at the learner\'s current level.',instruction:'Create a small synthetic practice problem for this lesson. Give only the scenario, small data sample and objectives first. Keep the worked answer hidden until the learner submits an attempt.'},
+{name:'Review dashboard',desc:'Critique decision usefulness, clarity, QA and visual choices.',instruction:'Review the learner\'s dashboard or proposed visual design for decision usefulness, misleading choices, missing QA/freshness information, accessibility and unnecessary clutter. Do not invent data.'},
+{name:'Verify an AI claim',desc:'Turn an AI suggestion into a verification checklist before trusting it.',instruction:'Treat the learner\'s quoted AI suggestion as unverified. List the source evidence, calculations, documentation or tests that must be checked before it is trusted, then explain what would count as a failed verification.'}
+];
+function renderAI(){
+ const lesson=document.getElementById('aiLesson'),mode=document.getElementById('aiMode'),grid=document.getElementById('aiGrid');
+ if(!lesson||!mode||!grid)return;
+ const previousDay=lesson.value;
+ lesson.innerHTML=COURSE.map(d=>`<option value="${d.day}">Day ${String(d.day).padStart(2,'0')} · ${esc(d.level)} · ${esc(d.title)}</option>`).join('');
+ if(previousDay&&COURSE.some(d=>String(d.day)===String(previousDay)))lesson.value=previousDay;else{const first=COURSE.find(d=>d.level===current)||COURSE[0];lesson.value=String(first.day)}
+ mode.innerHTML=AI_MODES.map((m,i)=>`<option value="${i}">${esc(m.name)}</option>`).join('');
+ grid.innerHTML=AI_MODES.map((m,i)=>`<div class="aiCard" id="aiCard_${i}"><strong>${esc(m.name)}</strong><p>${esc(m.desc)}</p><button class="btn" onclick="chooseAIMode(${i})">Use this mode</button></div>`).join('');
+ highlightAIMode();
+ mode.onchange=()=>{highlightAIMode();buildAIPrompt(false)};
+ lesson.onchange=()=>buildAIPrompt(false);
+}
+function chooseAIMode(i){const mode=document.getElementById('aiMode');if(!mode)return;mode.value=String(i);highlightAIMode();buildAIPrompt(false);document.getElementById('aiInput')?.focus()}
+function highlightAIMode(){const mode=document.getElementById('aiMode');if(!mode)return;document.querySelectorAll('.aiCard').forEach((c,i)=>c.classList.toggle('active',String(i)===mode.value))}
+function aiLesson(){const day=parseInt(document.getElementById('aiLesson')?.value||'0',10);return COURSE.find(d=>d.day===day)||COURSE[0]}
+function buildAIPrompt(showStatus){
+ const d=aiLesson(),mode=AI_MODES[parseInt(document.getElementById('aiMode')?.value||'0',10)]||AI_MODES[0],input=(document.getElementById('aiInput')?.value||'').trim();
+ const learner=(document.getElementById('learnerName')?.value||'the learner').trim()||'the learner';
+ const objectives=(d.objectives||[]).map((x,i)=>`${i+1}. ${x}`).join('\n');
+ const attempt=input||'[The learner has not entered an attempt yet. Start by asking what they have tried before giving substantive help.]';
+ const prompt=`You are the AI learning coach for the Kaldrix Limited Data Analysis Mastery Programme.
+
+LEARNER
+Name: ${learner}
+Level: ${d.level}
+Day: ${d.day}
+Lesson: ${d.title}
+Primary tool: ${d.tool}
+
+LESSON CONTEXT
+Concept: ${d.concepts}
+Learning objectives:
+${objectives}
+Practical task: ${d.practical}
+Independent exercise: ${d.exercise}
+
+COACHING MODE
+${mode.name}: ${mode.instruction}
+
+LEARNER'S QUESTION / ATTEMPT
+${attempt}
+
+KALDRIX COACHING RULES
+- Help the learner understand and perform the work; do not encourage answer-copying.
+- Never claim a result is correct without explaining how it can be verified.
+- For formulas, SQL, DAX or Python, explain the relevant logic and include a small test when useful.
+- For findings, distinguish evidence from assumptions and hypotheses.
+- Do not invent values that are supposed to come from the learner's dataset.
+- If information is missing, ask a focused question rather than guessing.
+- Keep the explanation appropriate to the learner's current level.
+- End with a short 'Verify it yourself' step.
+
+Begin coaching now.`;
+ const preview=document.getElementById('aiPromptPreview');if(preview)preview.value=prompt;if(showStatus)setAIStatus('Prompt prepared. You can copy it or open ChatGPT.');return prompt
+}
+function setAIStatus(msg,error=false){const el=document.getElementById('aiStatus');if(!el)return;el.textContent=msg;el.classList.toggle('error',!!error);if(msg)setTimeout(()=>{if(el.textContent===msg)el.textContent=''},6000)}
+async function copyTextReliable(text){
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true}}catch(e){}
+ try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='0';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');ta.remove();if(ok)return true}catch(e){}
+ return false
+}
+async function copyBuiltPrompt(){const p=buildAIPrompt(false),ok=await copyTextReliable(p);setAIStatus(ok?'Prompt copied.':'Clipboard access was blocked. Select the prepared prompt and copy it manually.',!ok);return ok}
+async function copyAndOpenChatGPT(){
+ const p=buildAIPrompt(false),ok=await copyTextReliable(p);
+ const w=window.open('https://chatgpt.com/','_blank','noopener,noreferrer');
+ if(ok)setAIStatus('Prompt copied and ChatGPT opened. Paste the prompt into the new chat.');else setAIStatus('ChatGPT opened, but the browser blocked automatic copying. Copy the prepared prompt manually, then paste it into ChatGPT.',true);
+ if(!w)setAIStatus('Your browser blocked the new tab. Allow pop-ups for this file, then try again.',true)
+}
+function clearAICoach(){const i=document.getElementById('aiInput'),p=document.getElementById('aiPromptPreview');if(i)i.value='';if(p)p.value='';setAIStatus('AI coach cleared.')}
+function openAICoachForDay(day){const lesson=document.getElementById('aiLesson');if(lesson)lesson.value=String(day);buildAIPrompt(false);document.getElementById('aiLab')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('aiInput')?.focus(),350)}
+document.getElementById('learnerName').value=localStorage.getItem('kaldrix-learner-name')||'';document.getElementById('learnerName').addEventListener('input',e=>localStorage.setItem('kaldrix-learner-name',e.target.value));
+tabs();render();renderAI();
+</script>
+</body></html>

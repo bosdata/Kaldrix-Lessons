@@ -1,0 +1,21 @@
+KALDRIX DATA ANALYSIS MASTERY PROGRAMME
+
+LEARNER
+1. Open Kaldrix_Data_Analysis_Mastery_Learner.html.
+2. Enter your official name.
+3. Study the lesson and PDF.
+4. Download the day-specific exercise dataset and import it into Google Sheets where Google Sheets is the required tool.
+5. Complete the work, share the Google Sheet and paste its URL in the app.
+6. Export the course record and send it to the trainer.
+
+TRAINER
+1. Open Kaldrix_Data_Analysis_Mastery_Trainer.html.
+2. Import the learner course record.
+3. Enter Trainer Mode, review the submission and approve or return it.
+4. Export the reviewed record back to the learner.
+
+AI LEARNING LAB
+The AI Lab builds a lesson-aware coaching prompt. Copy & Open ChatGPT copies it using a clipboard fallback and opens ChatGPT. The learner pastes the prompt into ChatGPT and continues interactively. No API key is embedded in the HTML.
+
+CERTIFICATES
+A level certificate unlocks only after all 10 lessons in the level are trainer-approved and marked Done by the learner.
